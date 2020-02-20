@@ -16,6 +16,14 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+os.path.join(basedir, 'plan
 # JWT config variable
 app.config['JWT_SECRET_KEY'] = 'super-secret'  # change this later
 
+# Mail trap
+app.config['MAIL_SERVER']='smtp.mailtrap.io'
+app.config['MAIL_PORT'] = 2525
+app.config['MAIL_USERNAME'] = '0472086d92ddb3'
+app.config['MAIL_PASSWORD'] = '86fc71389a0090'
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+
 # Instantiates SQLite db
 db = SQLAlchemy(app)
 
@@ -24,6 +32,9 @@ ma = Marshmallow(app)
 
 # Initialise JWT manager
 jwt = JWTManager(app)
+
+# Initialise Mail Server
+mail = Mail(app)
 
 
 # Flask CLI commands
@@ -138,10 +149,10 @@ def register():
 
 
 # Login JWT route
+
 @app.route('/login', methods=['POST'])
 def login():
     if request.is_json: # detects json encoded POST
-
         email = request.json['email']
         password = request.json['password']
     else:
@@ -154,6 +165,53 @@ def login():
         return jsonify(message='Login succeeded', access_token=access_token)
     else:
         return jsonify(meesage='Bad email or password'), 401
+
+
+# Email user
+@app.route('/retrieve_password/<string:email>', methods=['GET'])
+def retrieve_password(email: str):
+    user = User.query.filter_by(email=email).first()
+    if user:
+        msg = Message('your planetary api password is ' + user.password,
+                      sender="admin@planatary-api.com",
+                      recipients=[email])
+
+        mail.send(msg)
+        return jsonify(message='Password sent to ' + email), 200
+    else:
+        return jsonify(message='That email doesnt exist'), 401
+
+# Detail route
+@app.route('/planet_details/<int:planet_id>', methods=['GET'])
+def planet_details(planet_id: int):
+    planet = Planet.query.filter_by(planet_id=planet_id).first()
+    if planet:
+        result = planet_schema.dump(planet)
+        return jsonify(result), 201
+    else:
+        return jsonify(message = 'That planet does not exist'), 404
+
+
+# add planets
+@app.route('/add_planet', methods=['POST'])
+@jwt_required  # protecting endpoint with JWT
+def add_planet():
+    planet_name = request.form['planet_name']
+    test = Planet.query.filter_by(planet_name=planet_name).first()
+    if test:
+        return jsonify(message = "There is already a planet by that name"), 409
+    else:
+        planet_type = request.form['planet_type']
+        home_star = request.form['home_star']
+        mass = float(request.form['mass'])
+        radius = float(request.form['radius'])
+        distance = float(request.form['distance'])
+
+        new_planet = Planet(planet_name=planet_name, planet_type=planet_type,home_star=home_star,mass=mass,radius=radius,distance=distance)
+
+        db.session.add(new_planet)
+        db.session.commit()
+        return jsonify(message='You added a planet'), 201
 
 
 # database models
