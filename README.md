@@ -2,6 +2,9 @@
 ## Dependecies
 View requirements.txt for dependency information
 
+## Email Testing & Mail Service
+leveraged https://mailtrap.io/
+
 ## Virtual Env. Setup
 ### install
 pip install virtualenv [--user]
