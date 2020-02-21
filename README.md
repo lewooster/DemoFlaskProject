@@ -1,5 +1,12 @@
+### Demo Flask.py CRUD Planetary API application
 
-## Dependecies
+### SQLite Database
+#### DB operations using Flask.py CLI
+Create DB -- flask db_create
+Drop DB -- flask db_drop
+Seed DB -- flask db_seed
+
+## Dependencies
 View requirements.txt for dependency information
 
 ## Email Testing & Mail Service

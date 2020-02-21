@@ -16,13 +16,13 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+os.path.join(basedir, 'plan
 # JWT config variable
 app.config['JWT_SECRET_KEY'] = 'super-secret'  # change this later
 
-# Mail trap
-app.config['MAIL_SERVER']='smtp.mailtrap.io'
-app.config['MAIL_PORT'] = 2525
-app.config['MAIL_USERNAME'] = '0472086d92ddb3'
-app.config['MAIL_PASSWORD'] = '86fc71389a0090'
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USE_SSL'] = False
+# Mail trap config
+app.config['MAIL_SERVER']=os.environ['MAIL_SERVER']
+app.config['MAIL_PORT'] = os.environ['MAIL_PORT']
+app.config['MAIL_USERNAME'] = os.environ['MAIL_USERNAME']
+app.config['MAIL_PASSWORD'] = os.environ['MAIL_PASSWORD']
+app.config['MAIL_USE_TLS'] = os.environ['MAIL_USE_TLS']
+app.config['MAIL_USE_SSL'] = os.environ['MAIL_USE_SSL']
 
 # Instantiates SQLite db
 db = SQLAlchemy(app)
