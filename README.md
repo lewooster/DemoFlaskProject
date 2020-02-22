@@ -3,7 +3,9 @@
 ### SQLite Database
 #### DB operations using Flask.py CLI
 Create DB -- flask db_create
+
 Drop DB -- flask db_drop
+
 Seed DB -- flask db_seed
 
 ## Dependencies
