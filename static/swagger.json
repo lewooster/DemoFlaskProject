@@ -1,0 +1,21 @@
+{
+    "Parent": {
+        "properties": {
+            "name": {"type": "string"},
+            "class": {"type": "string"}
+        },
+        "discriminator": "class",
+        "required": ["class"]
+    },
+    "Child": {
+        "allOf": [
+            {
+                "$ref": "#/definitions/Parent"
+            }, {
+                "properties": {
+                    "extra": {"type": "string"}
+                }
+            }
+        ]
+    }
+}

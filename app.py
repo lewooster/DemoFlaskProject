@@ -1,12 +1,71 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, make_response, send_from_directory, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String, Float
 from flask_marshmallow import Marshmallow
 import os
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token
 from flask_mail import Mail, Message
+from flask_swagger_ui import get_swaggerui_blueprint
+from flask_cors import CORS
+from flasgger import Swagger
+
 
 app = Flask(__name__)
+swagger = Swagger(app)
+# CORS(app)
+
+# ### swagger specific ###
+# SWAGGER_URL = '/swagger'
+# API_URL = '/static/swagger.json'
+# SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
+#     SWAGGER_URL,
+#     API_URL,
+#     config={
+#         'app_name': "Demo Flask Planetary API"
+#     }
+# )
+# app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
+# ### end swagger specific ###
+
+
+
+
+
+
+
+
+
+
+
+
+#
+# REQUEST_API = Blueprint('app', __name__)
+#
+#
+# def get_blueprint():
+#     """Return the blueprint for the main app module"""
+#     return REQUEST_API
+#
+#
+# # swagger setup
+# @app.route('/static/<path:path>')
+# def send_static(path):
+#     return send_from_directory('static', path)
+#
+#
+# SWAGGER_URL = '/swagger'
+# API_URL = '/static/swagger.json'
+# SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
+#     SWAGGER_URL,
+#     API_URL,
+#     config={
+#         'app_name': "DemoFlaskProject"
+#     }
+# )
+# app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
+# app.register_blueprint(get_blueprint())
+
+
 
 # sql alchemy config
 # using DB browser for SQLite
@@ -103,6 +162,23 @@ def hello_word():
 
 @app.route('/super_simple')
 def super_simple():
+    """Example endpoint returning a super simple response
+            This is using docstrings for specifications.
+            ---
+            definitions:
+              Message:
+                type: string
+                properties:
+                  message_type:
+                    type: string
+            responses:
+              200:
+                description: Example endpoint returning a super simple response)
+                schema:
+                  $ref: '#/definitions/Message'
+                examples:
+                    'Hello....'
+            """
     # returning valid JSON key:value pairs
     return jsonify(message='Hello from the Planetary API.'), 200
 
@@ -125,6 +201,35 @@ def parameters():
 
 @app.route('/url_variables/<string:name>/<int:age>')
 def url_variables(name: str, age: int):
+    """Example endpoint returning a response based on age
+                This is using docstrings for specifications.
+                ---
+                parameters:
+                  - name: palette
+                    in: path
+                    type: string
+                    enum: ['all', 'rgb', 'cmyk']
+                    required: true
+                    default: all
+                definitions:
+                  Palette:
+                    type: object
+                    properties:
+                      palette_name:
+                        type: array
+                        items:
+                          $ref: '#/definitions/Color'
+                  Color:
+                    type: string
+                responses:
+                  200:
+                    description: A list of colors (may be filtered by palette)
+                    schema:
+                      $ref: '#/definitions/Palette'
+                    examples:
+                      rgb: ['red', 'green', 'blue']
+                """
+
     if age < 18:
         return jsonify(message='Sorry '+name+', you are not old enough'), 401
     else:
@@ -241,6 +346,16 @@ def update_planet():
         return jsonify(message='Planet ID:' + str(planet_id) + ' does not exist'), 404
 
 
+@app.route('/remove_planet/<int:planet_id>', methods=['DELETE'])
+@jwt_required
+def remove_planet(planet_id: int):
+    planet = Planet.query.filter_by(planet_id=planet_id).first()
+    if planet:
+        db.session.delete(planet)
+        db.session.commit()
+        return jsonify(message='Planet deleted'), 202
+    else:
+        return jsonify(message='Planet does not exist'), 404
 
 
 # database models
