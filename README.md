@@ -20,6 +20,7 @@ pip install virtualenv [--user]
 
 ### create an env
 virtualenv myenv
+
 virtualenv -p /usr/local/bin/pypy myenv # using the pypy distribution
 
 ### use the env
