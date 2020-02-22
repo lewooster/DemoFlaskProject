@@ -17,12 +17,20 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+os.path.join(basedir, 'plan
 app.config['JWT_SECRET_KEY'] = 'super-secret'  # change this later
 
 # Mail trap config
-app.config['MAIL_SERVER']=os.environ['MAIL_SERVER']
-app.config['MAIL_PORT'] = os.environ['MAIL_PORT']
-app.config['MAIL_USERNAME'] = os.environ['MAIL_USERNAME']
-app.config['MAIL_PASSWORD'] = os.environ['MAIL_PASSWORD']
-app.config['MAIL_USE_TLS'] = os.environ['MAIL_USE_TLS']
-app.config['MAIL_USE_SSL'] = os.environ['MAIL_USE_SSL']
+# app.config['MAIL_SERVER']=os.environ['MAIL_SERVER']
+# app.config['MAIL_PORT'] = os.environ['MAIL_PORT']
+# app.config['MAIL_USERNAME'] = os.environ['MAIL_USERNAME']
+# app.config['MAIL_PASSWORD'] = os.environ['MAIL_PASSWORD']
+# app.config['MAIL_USE_TLS'] = os.environ['MAIL_USE_TLS']
+# app.config['MAIL_USE_SSL'] = os.environ['MAIL_USE_SSL']
+
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+app.config['MAIL_PORT'] = os.getenv('MAIL_PORT')
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS')
+app.config['MAIL_USE_SSL'] = False
+
 
 # Instantiates SQLite db
 db = SQLAlchemy(app)
@@ -212,6 +220,27 @@ def add_planet():
         db.session.add(new_planet)
         db.session.commit()
         return jsonify(message='You added a planet'), 201
+
+
+@app.route('/update_planet', methods=['PUT'])
+@jwt_required
+def update_planet():
+    planet_id = int(request.form['planet_id'])
+    planet = Planet.query.filter_by(planet_id=planet_id).first()
+    if planet:
+        planet.planet_name = request.form['planet_name']
+        planet.planet_type = request.form['planet_type']
+        planet.home_star = request.form['home_star']
+        planet.mass = float(request.form['mass'])
+        planet.radius = float(request.form['radius'])
+        planet.distance = float(request.form['distance'])
+
+        db.session.commit()
+        return jsonify(message='Planet ID:'+str(planet_id)+' updated'), 201
+    else:
+        return jsonify(message='Planet ID:' + str(planet_id) + ' does not exist'), 404
+
+
 
 
 # database models

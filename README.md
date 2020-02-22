@@ -1,12 +1,14 @@
 ### Demo Flask.py CRUD Planetary API application
 
-### SQLite Database
+### SQLite Database Setup
 #### DB operations using Flask.py CLI
 Create DB -- flask db_create
 
 Drop DB -- flask db_drop
 
 Seed DB -- flask db_seed
+
+### used DB browser for SQLite https://sqlitebrowser.org/
 
 ## Dependencies
 View requirements.txt for dependency information
